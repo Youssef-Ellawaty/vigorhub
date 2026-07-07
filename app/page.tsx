@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
+import { OnboardingWizard } from '@/auth-onboarding/components/onboarding/OnboardingWizard'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 
 // Mock authentication state — replace with real auth (Supabase, NextAuth, etc.)

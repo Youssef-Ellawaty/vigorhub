@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mars, Venus, Ruler, Weight, CalendarDays } from "lucide-react";
+import { User, UserPlus, Ruler, Weight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FormField, inputClasses } from "../primitives/FormField";
 import { ActionButton } from "../primitives/ActionButton";

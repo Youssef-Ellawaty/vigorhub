@@ -1,19 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Enable React Compiler for performance optimization
-  experimental: {
-    reactCompiler: true,
-  },
-
   // TypeScript strict mode
   typescript: {
     tsconfigPath: './tsconfig.json',
-  },
-
-  // ESLint configuration
-  eslint: {
-    dirs: ['app', 'components', 'pages', 'lib', 'utils'],
   },
 
   // Image optimization
@@ -25,9 +15,6 @@ const nextConfig: NextConfig = {
 
   // Enable strict mode for catching errors
   reactStrictMode: true,
-
-  // Optimize production builds
-  swcMinify: true,
 
   // Configure headers for performance
   async headers() {
