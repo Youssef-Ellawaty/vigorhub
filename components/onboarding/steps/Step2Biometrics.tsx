@@ -48,6 +48,141 @@ function validate(data: Step2Payload, t: TranslationDict): FieldError[] {
   return errors;
 }
 
+// ─── Gender Card (extracted to module scope to prevent remount on every render) ─
+
+const GENDER_BASE_DARK =
+  "bg-slate-800/50 border-slate-700/50 hover:border-slate-600";
+const GENDER_BASE_LIGHT =
+  "bg-white border-slate-200 hover:border-slate-300 shadow-sm";
+const GENDER_SELECTED_DARK =
+  "border-emerald-500/70 bg-emerald-950/30 shadow-[0_0_20px_rgba(16,185,129,0.1)] ring-1 ring-emerald-500/25";
+const GENDER_SELECTED_LIGHT =
+  "border-emerald-500 bg-emerald-50 shadow-[0_0_12px_rgba(16,185,129,0.08)] ring-1 ring-emerald-500/25";
+
+function GenderCard({
+  gender,
+  label,
+  Icon,
+  isSelected,
+  isDark,
+  onSelect,
+}: {
+  gender: Gender;
+  label: string;
+  Icon: React.ElementType;
+  isSelected: boolean;
+  isDark: boolean;
+  onSelect: (g: Gender) => void;
+}) {
+  const cardClass = cn(
+    "flex-1 flex flex-col items-center justify-center gap-3 rounded-2xl border py-6 px-4 transition-all duration-200 outline-none",
+    "focus-visible:ring-2 focus-visible:ring-emerald-500",
+    isDark ? GENDER_BASE_DARK : GENDER_BASE_LIGHT,
+    isSelected && (isDark ? GENDER_SELECTED_DARK : GENDER_SELECTED_LIGHT)
+  );
+  const iconClass = cn(
+    "flex items-center justify-center w-14 h-14 rounded-2xl transition-colors duration-200",
+    isSelected
+      ? "bg-emerald-500/20 text-emerald-400"
+      : isDark
+      ? "bg-slate-700/60 text-slate-400"
+      : "bg-slate-100 text-slate-500"
+  );
+  const labelClass = cn(
+    "font-semibold text-sm tracking-wide",
+    isSelected
+      ? "text-emerald-400"
+      : isDark
+      ? "text-slate-200"
+      : "text-slate-700"
+  );
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={isSelected}
+      onClick={() => onSelect(gender)}
+      className={cardClass}
+    >
+      <div className={iconClass} aria-hidden="true">
+        <Icon className="w-7 h-7" strokeWidth={1.6} />
+      </div>
+      <span className={labelClass}>{label}</span>
+    </button>
+  );
+}
+
+// ─── Metric Input (extracted to module scope to prevent remount on every render) ─
+
+function MetricInput({
+  id,
+  label,
+  field,
+  placeholder,
+  icon: InputIcon,
+  unit,
+  value,
+  onChange,
+  error,
+  theme,
+  isRtl,
+}: {
+  id: string;
+  label: string;
+  field: "age" | "heightCm" | "weightKg";
+  placeholder: string;
+  icon: React.ElementType;
+  unit?: string;
+  value: number | null;
+  onChange: (field: "age" | "heightCm" | "weightKg", raw: string) => void;
+  error: string | undefined;
+  theme: import("../types").Theme;
+  isRtl: boolean;
+}) {
+  const isDark = theme === "dark";
+  const hasErr = !!error;
+  return (
+    <FormField id={id} label={label} error={error} theme={theme} isRtl={isRtl}>
+      <div className="relative">
+        <InputIcon
+          className={cn(
+            "absolute top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none",
+            isDark ? "text-slate-500" : "text-slate-400",
+            isRtl ? "right-4" : "left-4"
+          )}
+          strokeWidth={1.8}
+          aria-hidden="true"
+        />
+        <input
+          id={id}
+          type="number"
+          inputMode="numeric"
+          value={value ?? ""}
+          onChange={(e) => onChange(field, e.target.value)}
+          placeholder={placeholder}
+          className={cn(
+            inputClasses(theme, hasErr, isRtl ? "pr-10 pl-14" : "pl-10 pr-14"),
+            "appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          )}
+          dir="ltr"
+        />
+        {unit && (
+          <span
+            className={cn(
+              "absolute top-1/2 -translate-y-1/2 text-xs font-semibold tracking-widest pointer-events-none",
+              isDark ? "text-slate-500" : "text-slate-400",
+              isRtl ? "left-4" : "right-4"
+            )}
+            aria-hidden="true"
+          >
+            {unit}
+          </span>
+        )}
+      </div>
+    </FormField>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function Step2Biometrics({
@@ -80,131 +215,6 @@ export function Step2Biometrics({
   ) {
     const parsed = raw === "" ? null : parseInt(raw, 10);
     onChange({ ...data, [field]: isNaN(parsed as number) ? null : parsed });
-  }
-
-  // ─── Gender Card ──────────────────────────────────────────────────────────
-  // All class strings are literal constants so Turbopack can scan them.
-
-  const GENDER_BASE_DARK =
-    "bg-slate-800/50 border-slate-700/50 hover:border-slate-600";
-  const GENDER_BASE_LIGHT = "bg-white border-slate-200 hover:border-slate-300 shadow-sm";
-  const GENDER_SELECTED_DARK =
-    "border-emerald-500/70 bg-emerald-950/30 shadow-[0_0_20px_rgba(16,185,129,0.1)] ring-1 ring-emerald-500/25";
-  const GENDER_SELECTED_LIGHT =
-    "border-emerald-500 bg-emerald-50 shadow-[0_0_12px_rgba(16,185,129,0.08)] ring-1 ring-emerald-500/25";
-
-  function GenderCard({
-    gender,
-    label,
-    Icon,
-  }: {
-    gender: Gender;
-    label: string;
-    Icon: React.ElementType;
-  }) {
-    const isSelected = data.gender === gender;
-
-    const cardClass = cn(
-      "flex-1 flex flex-col items-center justify-center gap-3 rounded-2xl border py-6 px-4 transition-all duration-200 outline-none",
-      "focus-visible:ring-2 focus-visible:ring-emerald-500",
-      isDark ? GENDER_BASE_DARK : GENDER_BASE_LIGHT,
-      isSelected && (isDark ? GENDER_SELECTED_DARK : GENDER_SELECTED_LIGHT)
-    );
-
-    const iconClass = cn(
-      "flex items-center justify-center w-14 h-14 rounded-2xl transition-colors duration-200",
-      isSelected
-        ? "bg-emerald-500/20 text-emerald-400"
-        : isDark
-        ? "bg-slate-700/60 text-slate-400"
-        : "bg-slate-100 text-slate-500"
-    );
-
-    const labelClass = cn(
-      "font-semibold text-sm tracking-wide",
-      isSelected ? "text-emerald-400" : isDark ? "text-slate-200" : "text-slate-700"
-    );
-
-    return (
-      <button
-        type="button"
-        role="radio"
-        aria-checked={isSelected}
-        onClick={() => onChange({ ...data, gender })}
-        className={cardClass}
-      >
-        <div className={iconClass} aria-hidden="true">
-          <Icon className="w-7 h-7" strokeWidth={1.6} />
-        </div>
-        <span className={labelClass}>{label}</span>
-      </button>
-    );
-  }
-
-  // ─── Metric Input ─────────────────────────────────────────────────────────
-
-  function MetricInput({
-    id,
-    label,
-    field,
-    placeholder,
-    icon: InputIcon,
-    unit,
-  }: {
-    id: string;
-    label: string;
-    field: "age" | "heightCm" | "weightKg";
-    placeholder: string;
-    icon: React.ElementType;
-    unit?: string;
-  }) {
-    const hasErr = !!getError(field);
-    return (
-      <FormField
-        id={id}
-        label={label}
-        error={getError(field)}
-        theme={theme}
-        isRtl={isRtl}
-      >
-        <div className="relative">
-          <InputIcon
-            className={cn(
-              "absolute top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none",
-              isDark ? "text-slate-500" : "text-slate-400",
-              isRtl ? "right-4" : "left-4"
-            )}
-            strokeWidth={1.8}
-            aria-hidden="true"
-          />
-          <input
-            id={id}
-            type="number"
-            inputMode="numeric"
-            value={data[field] ?? ""}
-            onChange={(e) => handleNumberInput(field, e.target.value)}
-            placeholder={placeholder}
-            className={cn(
-              inputClasses(theme, hasErr, isRtl ? "pr-10 pl-14" : "pl-10 pr-14"),
-              "appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-            )}
-            dir="ltr"
-          />
-          {unit && (
-            <span
-              className={cn(
-                "absolute top-1/2 -translate-y-1/2 text-xs font-semibold tracking-widest pointer-events-none",
-                isDark ? "text-slate-500" : "text-slate-400",
-                isRtl ? "left-4" : "right-4"
-              )}
-              aria-hidden="true"
-            >
-              {unit}
-            </span>
-          )}
-        </div>
-      </FormField>
-    );
   }
 
   return (
@@ -240,8 +250,22 @@ export function Step2Biometrics({
           role="radiogroup"
           aria-label={t.labelGender}
         >
-          <GenderCard gender={Gender.Male} label={t.genderMale} Icon={Mars} />
-          <GenderCard gender={Gender.Female} label={t.genderFemale} Icon={Venus} />
+          <GenderCard
+            gender={Gender.Male}
+            label={t.genderMale}
+            Icon={Mars}
+            isSelected={data.gender === Gender.Male}
+            isDark={isDark}
+            onSelect={(g) => onChange({ ...data, gender: g })}
+          />
+          <GenderCard
+            gender={Gender.Female}
+            label={t.genderFemale}
+            Icon={Venus}
+            isSelected={data.gender === Gender.Female}
+            isDark={isDark}
+            onSelect={(g) => onChange({ ...data, gender: g })}
+          />
         </div>
       </FormField>
 
@@ -253,6 +277,11 @@ export function Step2Biometrics({
           field="age"
           placeholder={t.placeholderAge}
           icon={CalendarDays}
+          value={data.age}
+          onChange={handleNumberInput}
+          error={getError("age")}
+          theme={theme}
+          isRtl={isRtl}
         />
         <MetricInput
           id="heightCm"
@@ -261,6 +290,11 @@ export function Step2Biometrics({
           placeholder={t.placeholderHeight}
           icon={Ruler}
           unit="cm"
+          value={data.heightCm}
+          onChange={handleNumberInput}
+          error={getError("heightCm")}
+          theme={theme}
+          isRtl={isRtl}
         />
         <MetricInput
           id="weightKg"
@@ -269,6 +303,11 @@ export function Step2Biometrics({
           placeholder={t.placeholderWeight}
           icon={Weight}
           unit="kg"
+          value={data.weightKg}
+          onChange={handleNumberInput}
+          error={getError("weightKg")}
+          theme={theme}
+          isRtl={isRtl}
         />
       </div>
 
