@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
-import type { Language } from '@/calorie-tracker/lib/types'
+import type { Language, Theme } from '@/lib/types'
 import type { LoggedMealEntry, UserFitnessProfile, DailyTotals } from '@/calorie-tracker/lib/types'
 
 // Dynamically import calorie tracker components
@@ -14,12 +14,13 @@ const TDEECalculator = dynamic(() => import('@/calorie-tracker/components/tdee-c
 
 interface CaloricTrackerModuleProps {
   lang: Language
-  isDark: boolean
+  theme: Theme
 }
 
 type Tab = 'dashboard' | 'meals' | 'water' | 'ai'
 
-export default function CaloricTrackerModule({ lang, isDark }: CaloricTrackerModuleProps) {
+export default function CaloricTrackerModule({ lang, theme }: CaloricTrackerModuleProps) {
+  const isDark = theme === 'dark'
   const [activeTab, setActiveTab] = useState<Tab>('dashboard')
   const [showCalculator, setShowCalculator] = useState(false)
   const [profile, setProfile] = useState<UserFitnessProfile | null>(null)

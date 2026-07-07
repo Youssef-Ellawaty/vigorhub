@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
-import type { Language, Theme } from '@/progress-analytics/lib/dashboard-types'
+import type { Language, Theme } from '@/lib/types'
 import {
   MOCK_EXERCISES,
   generateMockProgressLogs,
@@ -21,11 +21,11 @@ const NutritionChart = dynamic(() => import('@/progress-analytics/components/das
 
 interface ProgressAnalyticsModuleProps {
   lang: Language
-  isDark: boolean
+  theme: Theme
 }
 
-export default function ProgressAnalyticsModule({ lang, isDark }: ProgressAnalyticsModuleProps) {
-  const [theme] = useState<Theme>(isDark ? 'dark' : 'light')
+export default function ProgressAnalyticsModule({ lang, theme }: ProgressAnalyticsModuleProps) {
+  const isDark = theme === 'dark'
   const [isLoading, setIsLoading] = useState(false)
 
   const [filters, setFilters] = useState<DashboardFilters>({

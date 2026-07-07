@@ -1,15 +1,35 @@
 :root {
-  --background: #ffffff;
-  --foreground: #1a1a1a;
-  --primary: #6366f1;
-  --secondary: #8b5cf6;
-  --accent: #ec4899;
-  --muted: #f5f5f5;
-  --muted-foreground: #666666;
-  --border: #e5e5e5;
+  /* Primary - Vibrant Green (Fitness/Health) */
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --primary-light: #a7f3d0;
+  
+  /* Secondary - Professional Blue */
+  --secondary: #3b82f6;
+  --secondary-dark: #1d4ed8;
+  --secondary-light: #dbeafe;
+  
+  /* Accents - Energy & Vibrancy */
+  --accent: #f59e0b;
+  --accent-secondary: #ccff00;
+  
+  /* Semantic Colors */
   --success: #10b981;
   --error: #ef4444;
   --warning: #f59e0b;
+  --info: #3b82f6;
+  
+  /* Neutrals - Light Theme */
+  --background: #ffffff;
+  --background-secondary: #f8fafc;
+  --background-tertiary: #f1f5f9;
+  --foreground: #1e293b;
+  --foreground-secondary: #475569;
+  --foreground-tertiary: #64748b;
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
 }
 
 * {
@@ -49,15 +69,25 @@ body {
 }
 
 /* Dark mode support */
-[data-theme='dark'] {
-  --background: #0B0F19;
-  --foreground: #E4E4E7;
-  --primary: #818CF8;
-  --secondary: #A78BFA;
-  --accent: #F472B6;
-  --muted: #27272A;
-  --muted-foreground: #A1A1AA;
-  --border: #3F3F46;
+[data-theme='dark'],
+html.dark {
+  --background: #0f172a;
+  --background-secondary: #1e293b;
+  --background-tertiary: #334155;
+  --foreground: #f1f5f9;
+  --foreground-secondary: #cbd5e1;
+  --foreground-tertiary: #94a3b8;
+  --primary: #6ee7b7;
+  --primary-dark: #10b981;
+  --primary-light: #a7f3d0;
+  --secondary: #60a5fa;
+  --secondary-dark: #3b82f6;
+  --secondary-light: #bfdbfe;
+  --accent: #fbbf24;
+  --border: #475569;
+  --border-light: #334155;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
 }
 
 /* Animations */

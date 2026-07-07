@@ -13,10 +13,11 @@ import type { WorkoutSplit } from '@/athlete-dashboard/lib/types'
 
 interface AthleteModuleProps {
   lang: Language
-  isDark: boolean
+  theme: Theme
 }
 
-export default function AthleteModule({ lang, isDark }: AthleteModuleProps) {
+export default function AthleteModule({ lang, theme }: AthleteModuleProps) {
+  const isDark = theme === 'dark'
   const [activeModule, setActiveModule] = useState<'splits' | 'live'>('splits')
   const [activeSplit, setActiveSplit] = useState<WorkoutSplit | null>(null)
   const [customSplits, setCustomSplits] = useState<WorkoutSplit[]>([])
