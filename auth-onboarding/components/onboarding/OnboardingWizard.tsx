@@ -110,7 +110,11 @@ function buildPayload(state: WizardState): OnboardingPayload {
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 
-export function OnboardingWizard() {
+export interface OnboardingWizardProps {
+  onOnboardingComplete?: (payload: OnboardingPayload) => void;
+}
+
+export function OnboardingWizard({ onOnboardingComplete }: OnboardingWizardProps = {}) {
   const [state, setState] = useState<WizardState>(buildInitialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -169,11 +173,15 @@ export function OnboardingWizard() {
     // Simulate async Supabase call — replace with real supabase.auth.signUp() call.
     // The payload below is the full OnboardingPayload ready for Supabase insertion.
     await new Promise<void>((resolve) => setTimeout(resolve, 1400));
-    void buildPayload(state);
+    const payload = buildPayload(state);
     // To integrate: const payload = buildPayload(state);
     // await supabase.auth.signUp({ email: payload.contact, password: payload.password })
     setIsSubmitting(false);
     navigateTo("success", "forward");
+    // Notify parent component of successful onboarding
+    if (onOnboardingComplete) {
+      onOnboardingComplete(payload);
+    }
   }
 
   // ─── Theme toggle ───────────────────────────────────────────────────────────
@@ -203,7 +211,7 @@ export function OnboardingWizard() {
   const slideKey = state.currentStep;
   const enterClass = state.slideDirection === "forward" ? SLIDE_FORWARD : SLIDE_BACKWARD;
 
-  // ─── Is success ─────────────────────────────────────────────────────────────
+  // ──��� Is success ─────────────────────────────────────────────────────────────
 
   const isSuccess = state.currentStep === "success";
 
