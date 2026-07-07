@@ -1,0 +1,35 @@
+{
+  "name": "vigorhub",
+  "version": "1.0.0",
+  "description": "VigorHub - Comprehensive fitness and health management platform",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "next": "^16.0.0",
+    "lucide-react": "^0.451.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "@types/node": "^20.17.0",
+    "@types/react": "^19.0.6",
+    "@types/react-dom": "^19.0.3",
+    "tailwindcss": "^4.0.0",
+    "postcss": "^8.4.47",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "^16.0.0"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}
