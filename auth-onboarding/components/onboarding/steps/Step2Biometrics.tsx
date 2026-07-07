@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, UserPlus, Ruler, Weight, CalendarDays } from "lucide-react";
+import { User, Users, Ruler, Weight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FormField, inputClasses } from "../primitives/FormField";
 import { ActionButton } from "../primitives/ActionButton";
@@ -240,8 +240,8 @@ export function Step2Biometrics({
           role="radiogroup"
           aria-label={t.labelGender}
         >
-          <GenderCard gender={Gender.Male} label={t.genderMale} Icon={Mars} />
-          <GenderCard gender={Gender.Female} label={t.genderFemale} Icon={Venus} />
+          <GenderCard gender={Gender.Male} label={t.genderMale} Icon={User} />
+          <GenderCard gender={Gender.Female} label={t.genderFemale} Icon={Users} />
         </div>
       </FormField>
 
