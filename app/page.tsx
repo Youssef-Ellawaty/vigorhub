@@ -14,6 +14,7 @@ import {
   Moon,
   Globe,
   ChevronRight,
+  Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OnboardingWizard } from "@/auth-onboarding/components/onboarding/OnboardingWizard";
@@ -22,6 +23,7 @@ import AthleteDashboardView from "@/components/views/AthleteDashboardView";
 import CalorieTrackerView from "@/components/views/CalorieTrackerView";
 import ProgressAnalyticsView from "@/components/views/ProgressAnalyticsView";
 import { VigorHub as CommunityView } from "@/community/components/vigor/VigorHub";
+import FantasyView from "@/components/views/FantasyView";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -30,7 +32,8 @@ type AppTab =
   | "calorie-tracker"
   | "progress-analytics"
   | "community"
-  | "settings";
+  | "settings"
+  | "fantasy";
 
 type Language = "en" | "ar";
 type Theme = "dark" | "light";
@@ -47,6 +50,7 @@ const NAV_ITEMS: {
   { id: "calorie-tracker",      icon: UtensilsCrossed,  labelEn: "Calorie Tracker",   labelAr: "تتبع السعرات" },
   { id: "progress-analytics",   icon: BarChart2,        labelEn: "Progress Analytics",labelAr: "تحليل التقدم" },
   { id: "community",            icon: Users,            labelEn: "Community",         labelAr: "المجتمع" },
+  { id: "fantasy",              icon: Trophy,           labelEn: "Fantasy League",    labelAr: "دوري الفانتازي" },
   { id: "settings",             icon: Settings,         labelEn: "Settings",          labelAr: "الإعدادات" },
 ];
 
@@ -59,6 +63,7 @@ export default function VigorHubApp() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [language, setLanguage] = useState<Language>("en");
   const [theme, setTheme] = useState<Theme>("dark");
+  const [activeUser, setActiveUser] = useState<any>(null);
 
   const isDark = theme === "dark";
   const isRtl = language === "ar";
@@ -74,6 +79,25 @@ export default function VigorHubApp() {
     html.dir = isRtl ? "rtl" : "ltr";
     html.lang = language;
   }, [isDark, isRtl, language]);
+
+  // ─── Restore session from localStorage ───────────────────────────────────────
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("vigorhub_current_user");
+      if (stored) {
+        try {
+          const user = JSON.parse(stored);
+          if (user) {
+            setActiveUser(user);
+            if (user.status === "approved") {
+              setIsAuthenticated(true);
+              setUserRole("free_athlete");
+            }
+          }
+        } catch (e) {}
+      }
+    }
+  }, [isAuthenticated]);
 
   // ─── Auth gate ────────────────────────────────────────────────────────────
 
@@ -255,7 +279,7 @@ export default function VigorHubApp() {
         )}
       >
         <h2 className={cn("text-sm font-bold uppercase tracking-widest mb-3", isDark ? "text-slate-400" : "text-slate-500")}>
-          {language === "ar" ? "الحساب" : "Account"}
+          {language === "ar" ? "الحساب والاشتراك" : "Account & Subscription"}
         </h2>
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
@@ -263,16 +287,42 @@ export default function VigorHubApp() {
           </div>
           <div>
             <p className={cn("text-sm font-semibold", isDark ? "text-slate-200" : "text-slate-800")}>
-              {language === "ar" ? "لاعب حر" : "Free Athlete"}
+              {activeUser?.fullName || (language === "ar" ? "اللاعب الرياضي" : "Vigor Athlete")}
             </p>
-            <p className={cn("text-xs", isDark ? "text-slate-500" : "text-slate-400")}>
-              {language === "ar" ? "نشط" : "Active"} · VigorHub
+            <p className={cn("text-xs font-bold text-emerald-400 mt-0.5")}>
+              {activeUser?.plan ? (
+                activeUser.plan === "basic"
+                  ? (language === "ar" ? "الباقة الأساسية (Standard)" : "Standard Plan")
+                  : activeUser.plan === "pro"
+                  ? (language === "ar" ? "الباقة المتقدمة (Pro)" : "Pro Plan")
+                  : (language === "ar" ? "باقة النخبة (VIP)" : "VIP Plan")
+              ) : (
+                language === "ar" ? "الباقة الأساسية النشطة" : "Active Athlete Plan"
+              )}
+              {activeUser?.billingCycle && (
+                ` · ${
+                  activeUser.billingCycle === "month"
+                    ? (language === "ar" ? "شهري" : "Monthly")
+                    : activeUser.billingCycle === "3months"
+                    ? (language === "ar" ? "3 أشهر" : "3 Months")
+                    : (language === "ar" ? "سنوي" : "Yearly")
+                }`
+              )}
             </p>
+            {activeUser?.email && (
+              <p className={cn("text-[10px] mt-1 font-mono", isDark ? "text-slate-500" : "text-slate-400")}>
+                {activeUser.email}
+              </p>
+            )}
           </div>
         </div>
 
         <button
           onClick={() => {
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("vigorhub_current_user");
+            }
+            setActiveUser(null);
             setIsAuthenticated(false);
             setUserRole(null);
             setActiveTab("athlete-dashboard");
@@ -444,6 +494,8 @@ export default function VigorHubApp() {
             <AthleteDashboardView
               lang={language as "en" | "ar"}
               isDark={isDark}
+              activeUser={activeUser}
+              onUpdateUser={setActiveUser}
             />
           )}
           {activeTab === "calorie-tracker" && (
@@ -459,6 +511,14 @@ export default function VigorHubApp() {
             />
           )}
           {activeTab === "community" && <CommunityView />}
+          {activeTab === "fantasy" && (
+            <FantasyView
+              lang={language as "en" | "ar"}
+              isDark={isDark}
+              activeUser={activeUser}
+              onUpdateUser={setActiveUser}
+            />
+          )}
           {activeTab === "settings" && <SettingsView />}
         </main>
       </div>
@@ -498,7 +558,9 @@ function OnboardingWizardWithCallback({
             text.includes("enter") ||
             text.includes("platform") ||
             text.includes("ادخل") ||
-            text.includes("المنصة")
+            text.includes("المنصة") ||
+            text.includes("دخول") ||
+            text.includes("لوحة")
           ) {
             // Default to IndependentAthlete to satisfy the role gate.
             onComplete(PersonaType.IndependentAthlete);

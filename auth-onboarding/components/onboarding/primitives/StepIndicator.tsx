@@ -11,10 +11,11 @@ const STEP_INDEX: Record<WizardStep, number> = {
   step1: 0,
   step2: 1,
   step3: 2,
-  step4A: 3,
-  step4B: 3,
-  step4C: 3,
-  success: 4,
+  step4A: 2,
+  step4B: 2,
+  step4C: 2,
+  step5Payment: 3,
+  success: 3,
 };
 
 interface StepIndicatorProps {

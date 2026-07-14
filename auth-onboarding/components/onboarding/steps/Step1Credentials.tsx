@@ -12,6 +12,7 @@ interface Step1Props {
   data: Step1Payload;
   onChange: (data: Step1Payload) => void;
   onNext: () => void;
+  onToggleLogin?: () => void;
   theme: Theme;
   isRtl: boolean;
   t: TranslationDict;
@@ -59,6 +60,7 @@ export function Step1Credentials({
   data,
   onChange,
   onNext,
+  onToggleLogin,
   theme,
   isRtl,
   t,
@@ -314,6 +316,21 @@ export function Step1Credentials({
       >
         {t.next}
       </ActionButton>
+
+      {onToggleLogin && (
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={onToggleLogin}
+            className={cn(
+              "text-xs font-semibold hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50 rounded px-2 py-1",
+              isDark ? "text-slate-400 hover:text-emerald-400" : "text-slate-500 hover:text-emerald-600"
+            )}
+          >
+            {isRtl ? "لديك حساب بالفعل؟ تسجيل الدخول" : "Already have an account? Log In"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

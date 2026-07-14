@@ -15,7 +15,6 @@ import {
 import { ExploreFeed } from './ExploreFeed'
 import { ProfileTab } from './ProfileTab'
 import { NotificationsTab } from './NotificationsTab'
-import { LeaderboardTab } from './LeaderboardTab'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function deleteCommentById(comments: Comment[], targetId: string): Comment[] {
@@ -248,7 +247,7 @@ export function VigorHub() {
           {/* Logo */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center glow-emerald overflow-hidden">
-              <img src="/logo.jpg" alt="VigorHub Logo" className="w-5 h-5 object-contain" />
+              <img src="/logo.jpg" alt="VigorHub Logo" className="w-full h-full object-cover" />
             </div>
             <span className="font-bold text-lg text-foreground tracking-tight glow-emerald-text">
               VigorHub
@@ -280,14 +279,6 @@ export function VigorHub() {
               isActive={activeTab === 'notifications'}
               badge={unreadCount}
               onClick={() => setActiveTab('notifications')}
-              lang={lang}
-            />
-            <NavItem
-              icon={<Trophy className="w-4 h-4" />}
-              labelAr="لوحة الشرف"
-              labelEn="Leaderboard"
-              isActive={activeTab === 'leaderboard'}
-              onClick={() => setActiveTab('leaderboard')}
               lang={lang}
             />
           </nav>
@@ -341,7 +332,6 @@ export function VigorHub() {
               { tab: 'explore' as MainTab, iconEl: <Compass className="w-4 h-4" />, ar: 'اكتشف', en: 'Explore', badge: 0 },
               { tab: 'profile' as MainTab, iconEl: <UserIcon className="w-4 h-4" />, ar: 'ملفي', en: 'My Profile', badge: 0 },
               { tab: 'notifications' as MainTab, iconEl: <Bell className="w-4 h-4" />, ar: 'الإشعارات', en: 'Notifications', badge: unreadCount },
-              { tab: 'leaderboard' as MainTab, iconEl: <Trophy className="w-4 h-4" />, ar: 'لوحة الشرف', en: 'Leaderboard', badge: 0 },
             ].map(item => (
               <button
                 key={item.tab}
@@ -412,13 +402,6 @@ export function VigorHub() {
               onViewProfile={handleViewProfile}
             />
           )}
-          {activeTab === 'leaderboard' && (
-            <LeaderboardTab
-              lang={lang}
-              currentUser={currentUser}
-              onViewProfile={handleViewProfile}
-            />
-          )}
         </main>
       </div>
 
@@ -429,7 +412,6 @@ export function VigorHub() {
             { tab: 'explore' as MainTab, icon: <Compass className="w-5 h-5" />, ar: 'اكتشف', en: 'Explore' },
             { tab: 'profile' as MainTab, icon: <UserIcon className="w-5 h-5" />, ar: 'ملفي', en: 'Profile' },
             { tab: 'notifications' as MainTab, icon: <Bell className="w-5 h-5" />, ar: 'الإشعارات', en: 'Notifs' },
-            { tab: 'leaderboard' as MainTab, icon: <Trophy className="w-5 h-5" />, ar: 'الشرف', en: 'Ranks' },
           ].map(item => (
             <button
               key={item.tab}

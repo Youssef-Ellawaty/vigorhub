@@ -116,7 +116,7 @@ export default function VigorHub() {
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/25 overflow-hidden">
-              <img src="/logo.jpg" alt="VigorHub Logo" className="w-5 h-5 object-contain" />
+              <img src="/logo.jpg" alt="VigorHub Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <span className={cn("text-base font-black tracking-tight", textPrimary)}>

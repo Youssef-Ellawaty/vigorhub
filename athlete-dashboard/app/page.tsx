@@ -67,6 +67,7 @@ export default function VigorHubDashboard() {
             lang={lang}
             isDark={isDark}
             customSplits={customSplits}
+            activeSplitId={null}
             onActivate={handleActivateSplit}
             onCreateCustom={() => setShowCustomCreator(true)}
           />

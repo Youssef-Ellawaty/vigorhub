@@ -131,8 +131,12 @@ export interface PlanOption {
 
 export interface Step5Payload {
   selectedPlan: PlanTier | null;
+  billingCycle: "month" | "3months" | "year";
   paymentMethod: PaymentMethod | null;
-  vodafoneNumber: string;
+  vodafoneSenderNumber: string;
+  vodafoneWhatsApp: string;
+  vodafoneAmount: string;
+  vodafoneScreenshot: string; // Base64 image data or file name
 }
 
 // ─── Wizard State (internal React state shape) ────────────────────────────────

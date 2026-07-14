@@ -149,7 +149,7 @@ const en: TranslationDict = {
   optional: "Optional",
   stepOf: (current, total) => `Step ${current} of ${total}`,
 
-  stepLabels: ["Account", "Biometrics", "Persona", "Finish"],
+  stepLabels: ["Account", "Biometrics", "Goals", "Payment"],
 
   step1Title: "Create Your Account",
   step1Subtitle: "Set up your VigorHub identity to get started.",
@@ -267,7 +267,7 @@ const ar: TranslationDict = {
   optional: "اختياري",
   stepOf: (current, total) => `الخطوة ${current} من ${total}`,
 
-  stepLabels: ["الحساب", "البيانات الجسدية", "نوع الحساب", "الإنهاء"],
+  stepLabels: ["الحساب", "البيانات الجسدية", "الأهداف", "الدفع"],
 
   step1Title: "أنشئ حسابك",
   step1Subtitle: "سجّل هويتك على فيغورهاب للبدء في رحلتك التدريبية.",

@@ -11,6 +11,7 @@ interface SplitExplorerProps {
   lang: Language;
   isDark: boolean;
   customSplits: WorkoutSplit[];
+  activeSplitId: string | null;
   onActivate: (split: WorkoutSplit) => void;
   onCreateCustom: () => void;
 }
@@ -30,6 +31,7 @@ export default function SplitExplorer({
   lang,
   isDark,
   customSplits,
+  activeSplitId,
   onActivate,
   onCreateCustom,
 }: SplitExplorerProps) {
@@ -39,6 +41,8 @@ export default function SplitExplorer({
 
   const allSplits = [...WORKOUT_SPLITS, ...customSplits];
   const levelColors = isDark ? LEVEL_COLORS : LEVEL_COLORS_LIGHT;
+
+  const currentActiveSplit = allSplits.find(s => s.id === activeSplitId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -57,15 +61,49 @@ export default function SplitExplorer({
         </button>
       </div>
 
+      {/* Quick Resume Active Split Banner */}
+      {currentActiveSplit && (
+        <div className="glass-card rounded-2xl p-5 border-2 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)] flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-300 hover:scale-[1.01]">
+          <div className="flex items-center gap-4 text-center md:text-start flex-col md:flex-row">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <Play size={20} fill="currentColor" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 justify-center md:justify-start">
+                <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded">
+                  {lang === "ar" ? "قيد الاستخدام" : "Active Split"}
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-foreground mt-1">
+                {currentActiveSplit.name[lang]}
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5 max-w-lg">
+                {currentActiveSplit.description[lang]}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => onActivate(currentActiveSplit)}
+            className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity btn-glow"
+          >
+            <Play size={16} fill="currentColor" />
+            {lang === "ar" ? "ابدأ التمرين اليومي" : "Start Daily Workout"}
+          </button>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* LEFT: Split cards */}
         <div className="flex flex-col gap-3">
           {allSplits.map((split) => {
             const isExpanded = expandedId === split.id;
+            const isActive = split.id === activeSplitId;
             return (
               <div
                 key={split.id}
-                className="glass-card rounded-2xl overflow-hidden transition-all duration-300"
+                className={`glass-card rounded-2xl overflow-hidden transition-all duration-300 ${
+                  isActive ? "border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.08)] bg-emerald-500/[0.02]" : ""
+                }`}
               >
                 {/* Card header */}
                 <button
@@ -83,11 +121,16 @@ export default function SplitExplorer({
                           {tr.customBadge}
                         </span>
                       )}
+                      {isActive && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 font-bold">
+                          {lang === "ar" ? "قيد الاستخدام" : "Active"}
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-3 mt-2 flex-wrap">
                       <span className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Calendar size={12} />
-                        {split.daysPerWeek} {tr.daysPerWeek}
+                        {split.daysPerWeek || split.days.length} {tr.daysPerWeek}
                       </span>
                       <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${levelColors[split.level]}`}>
                         {tr.levels[split.level]}

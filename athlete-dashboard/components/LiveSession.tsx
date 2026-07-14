@@ -21,6 +21,8 @@ interface LiveSessionProps {
   split: WorkoutSplit;
   lang: Language;
   isDark: boolean;
+  activeUser?: any;
+  onUpdateUser?: (newUser: any) => void;
   onBack: () => void;
 }
 
@@ -37,19 +39,70 @@ function buildInitialLogs(split: WorkoutSplit, dayIdx: number): ExerciseLog[] {
   }));
 }
 
-export default function LiveSession({ split, lang, isDark, onBack }: LiveSessionProps) {
+export default function LiveSession({ split, lang, isDark, activeUser, onUpdateUser, onBack }: LiveSessionProps) {
   const tr = translations[lang];
   const today = new Date();
   const todayDow = today.getDay();
 
-  const [activeDayIdx, setActiveDayIdx] = useState(0);
+  // Smart day matching and rest determination algorithm
+  const getInitialDayAndRestState = useCallback(() => {
+    const dow = today.getDay(); // 0 = Sunday, 1 = Monday, 2 = Tuesday, etc.
+    const daysCount = split.days.length;
+
+    if (daysCount === 6) {
+      if (dow === 3) {
+        return { index: 0, isRest: true }; // Wednesday is Rest Day, default to Day 1
+      }
+      if (dow < 3) {
+        return { index: dow, isRest: false };
+      } else {
+        return { index: dow - 1, isRest: false };
+      }
+    }
+
+    if (daysCount === 3) {
+      if (dow === 0) return { index: 0, isRest: false };
+      if (dow === 2) return { index: 1, isRest: false };
+      if (dow === 4) return { index: 2, isRest: false };
+      return { index: 0, isRest: true };
+    }
+
+    if (daysCount === 4) {
+      if (dow === 0) return { index: 0, isRest: false };
+      if (dow === 2) return { index: 1, isRest: false };
+      if (dow === 4) return { index: 2, isRest: false };
+      if (dow === 6) return { index: 3, isRest: false };
+      return { index: 0, isRest: true };
+    }
+
+    if (daysCount === 5) {
+      if (dow === 0) return { index: 0, isRest: false };
+      if (dow === 1) return { index: 1, isRest: false };
+      if (dow === 3) return { index: 2, isRest: false };
+      if (dow === 4) return { index: 3, isRest: false };
+      if (dow === 5) return { index: 4, isRest: false };
+      return { index: 0, isRest: true };
+    }
+
+    // Default modulo fallback
+    return { index: dow % daysCount, isRest: false };
+  }, [split.days.length]);
+
+  const [activeDayIdx, setActiveDayIdx] = useState(() => {
+    return getInitialDayAndRestState().index;
+  });
+  const [isRestDay, setIsRestDay] = useState(() => {
+    return getInitialDayAndRestState().isRest;
+  });
+
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>(() =>
-    buildInitialLogs(split, 0)
+    buildInitialLogs(split, getInitialDayAndRestState().index)
   );
   const [cardioLogs, setCardioLogs] = useState<CardioLog[]>([]);
   const [swapOpen, setSwapOpen] = useState<string | null>(null);
   const [completed, setCompleted] = useState(false);
   const [sessionLog, setSessionLog] = useState<LiveSessionLogs | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // ── Calendar week ──
   const weekDates = Array.from({ length: 7 }, (_, i) => {
@@ -60,6 +113,7 @@ export default function LiveSession({ split, lang, isDark, onBack }: LiveSession
 
   const handleDayChange = (idx: number) => {
     setActiveDayIdx(idx);
+    setIsRestDay(false); // Manually chose a day, so override rest status
     setExerciseLogs(buildInitialLogs(split, idx));
     setSwapOpen(null);
   };
@@ -143,7 +197,8 @@ export default function LiveSession({ split, lang, isDark, onBack }: LiveSession
   };
 
   // ── Complete workout ──
-  const completeWorkout = () => {
+  const completeWorkout = async () => {
+    setIsSaving(true);
     const log: LiveSessionLogs = {
       splitId: split.id,
       dayIndex: activeDayIdx,
@@ -155,6 +210,91 @@ export default function LiveSession({ split, lang, isDark, onBack }: LiveSession
     };
     setSessionLog(log);
     setCompleted(true);
+
+    // 1. Calculate Fantasy League Points (Commitment and Weight Volume)
+    let totalVolume = 0;
+    const formattedWeightExercises = exerciseLogs.map((el) => {
+      const sets = el.sets
+        .filter(s => s.completed && s.weight !== "" && s.reps !== "")
+        .map((s, idx) => {
+          const w = Number(s.weight) || 0;
+          const r = Number(s.reps) || 0;
+          totalVolume += w * r;
+          return {
+            id: `s_${idx}_${Date.now()}`,
+            weight: w,
+            reps: r
+          };
+        });
+      return {
+        id: el.exerciseId,
+        name: el.exerciseName,
+        sets: sets
+      };
+    }).filter(ex => ex.sets.length > 0);
+
+    const weightPoints = Number((totalVolume / 1000).toFixed(2));
+    const commitmentStatus = "full";
+    const commitmentPoints = 5; // 5 points for completing workout
+
+    // Load existing points history from localStorage to merge
+    const savedLogs = localStorage.getItem("vigorhub_fantasy_point_logs");
+    let logs: any[] = [];
+    if (savedLogs) {
+      try {
+        logs = JSON.parse(savedLogs);
+      } catch (e) {}
+    }
+
+    const todayDateStr = today.toISOString().split("T")[0];
+    const existingTodayLog = logs.find(l => l.date === todayDateStr);
+
+    const updatedLog = {
+      date: todayDateStr,
+      commitmentStatus,
+      commitmentPoints,
+      weightExercises: formattedWeightExercises,
+      weightPoints,
+      nutritionTarget: existingTodayLog ? existingTodayLog.nutritionTarget : 2000,
+      nutritionActual: existingTodayLog ? existingTodayLog.nutritionActual : 1950,
+      nutritionPoints: existingTodayLog ? existingTodayLog.nutritionPoints : 5,
+      totalPoints: 0
+    };
+    updatedLog.totalPoints = Number((updatedLog.commitmentPoints + updatedLog.weightPoints + updatedLog.nutritionPoints).toFixed(2));
+
+    const newLogs = logs.filter(l => l.date !== todayDateStr);
+    newLogs.push(updatedLog);
+    localStorage.setItem("vigorhub_fantasy_point_logs", JSON.stringify(newLogs));
+
+    // 2. Save workout log to database
+    if (activeUser?.id) {
+      try {
+        const payloadExercises = exerciseLogs.map(ex => ({
+          exerciseName: ex.exerciseName,
+          sets: ex.sets
+            .filter(s => s.completed)
+            .map(s => ({
+              setNumber: s.setNumber,
+              reps: Number(s.reps) || 0,
+              weight: Number(s.weight) || 0,
+            }))
+        })).filter(ex => ex.sets.length > 0);
+
+        await fetch("/api/user/workout-state", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "save_workout_log",
+            userId: activeUser.id,
+            exercises: payloadExercises,
+            date: today.toISOString(),
+          })
+        });
+      } catch (err) {
+        console.error("Failed to persist workout log to database:", err);
+      }
+    }
+    setIsSaving(false);
   };
 
   const totalSets = exerciseLogs.reduce((a, e) => a + e.sets.length, 0);
@@ -253,10 +393,18 @@ export default function LiveSession({ split, lang, isDark, onBack }: LiveSession
             <span className="font-semibold text-primary">
               {tr.recommendedDay} {DAYS_OF_WEEK[lang][todayDow]}.
             </span>{" "}
-            {tr.recommendedSuffix}{" "}
-            <span className="font-bold text-primary">
-              {split.days[activeDayIdx]?.label[lang] ?? split.days[0].label[lang]}
-            </span>
+            {isRestDay ? (
+              <span className="font-bold text-emerald-400">
+                {lang === "ar" ? "اليوم هو يوم راحة! الاستشفاء والبناء العضلي" : "Today is Rest Day! Recovery and muscle rebuilding"}
+              </span>
+            ) : (
+              <>
+                {tr.recommendedSuffix}{" "}
+                <span className="font-bold text-primary">
+                  {split.days[activeDayIdx]?.label[lang] ?? split.days[0].label[lang]}
+                </span>
+              </>
+            )}
           </p>
         </div>
 
@@ -291,7 +439,7 @@ export default function LiveSession({ split, lang, isDark, onBack }: LiveSession
               key={di}
               onClick={() => handleDayChange(di)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeDayIdx === di
+                activeDayIdx === di && !isRestDay
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground hover:text-foreground"
               }`}
@@ -299,11 +447,44 @@ export default function LiveSession({ split, lang, isDark, onBack }: LiveSession
               {day.label[lang]}
             </button>
           ))}
+          <button
+            onClick={() => {
+              setIsRestDay(true);
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              isRestDay
+                ? "bg-emerald-500 text-white"
+                : "bg-secondary text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {lang === "ar" ? "يوم راحة 😴" : "Rest Day 😴"}
+          </button>
         </div>
       </div>
 
+      {/* Rest Day Welcome Banner */}
+      {isRestDay && (
+        <div className="glass-card rounded-2xl p-6 border border-emerald-500/30 bg-emerald-500/5 text-center flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <Trophy size={24} className="animate-bounce" />
+          </div>
+          <div>
+            <h4 className="font-bold text-foreground text-lg">
+              {lang === "ar" ? "اليوم هو يوم راحة حسب جدولك المختار! 🥳" : "Today is a Scheduled Rest Day! 🥳"}
+            </h4>
+            <p className="text-sm text-muted-foreground mt-1 max-w-md">
+              {lang === "ar" 
+                ? "يمكنك الاسترخاء والتعافي لتجديد طاقتك، أو إذا كنت ترغب في التمرن اليوم وتجميع نقاط الفانتازي، اختر أحد أيام التدريب المتاحة من الأسفل للعب وتوثيق السيتات!"
+                : "Relax, recover, and rebuild. However, if you still want to crush a workout today and earn fantasy league points, you can manually select any training day from the selector above!"}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Exercise Logger */}
-      <div className="flex flex-col gap-4">
+      {!isRestDay && (
+        <>
+        <div className="flex flex-col gap-4">
         {exerciseLogs.map((exLog, exIdx) => {
           const originalExercise = activeDay.exercises[exIdx] ?? activeDay.exercises[0];
           const alternates = getExercisesByMuscle(originalExercise.primaryMuscle).filter(
@@ -523,6 +704,8 @@ export default function LiveSession({ split, lang, isDark, onBack }: LiveSession
         <Trophy size={22} />
         {tr.completeWorkout}
       </button>
+      </>
+      )}
     </div>
   );
 }
