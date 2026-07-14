@@ -15,6 +15,7 @@ export type WizardStep =
   | "step4A"
   | "step4B"
   | "step4C"
+  | "step5Payment"
   | "success";
 
 export type SlideDirection = "forward" | "backward";
@@ -110,9 +111,34 @@ export interface OnboardingPayload {
   };
 }
 
+// ─── Payment / Subscription (add near the other enums) ───────────────────────
+
+export enum PlanTier {
+  Basic = "basic",
+  Pro = "pro",
+  Ultimate = "ultimate",
+}
+
+export enum PaymentMethod {
+  VodafoneCash = "vodafone_cash",
+  PayPal = "paypal",
+}
+
+export interface PlanOption {
+  tier: PlanTier;
+  priceEGP: number;
+}
+
+export interface Step5Payload {
+  selectedPlan: PlanTier | null;
+  paymentMethod: PaymentMethod | null;
+  vodafoneNumber: string;
+}
+
 // ─── Wizard State (internal React state shape) ────────────────────────────────
 
 export interface WizardState {
+  step5: Step5Payload;
   currentStep: WizardStep;
   slideDirection: SlideDirection;
   language: Language;

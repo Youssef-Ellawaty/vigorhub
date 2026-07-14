@@ -54,6 +54,7 @@ export function Step3Persona({
     icon: React.ElementType;
     accentColor: "emerald" | "cyan";
     badge?: string;
+    disabled?: boolean;
   }> = [
     {
       type: PersonaType.IndependentAthlete,
@@ -68,6 +69,8 @@ export function Step3Persona({
       description: t.personaTraineeDesc,
       icon: Users,
       accentColor: "cyan",
+      badge: "Coming soon",
+      disabled: true,
     },
     {
       type: PersonaType.ProfessionalCoach,
@@ -75,7 +78,8 @@ export function Step3Persona({
       description: t.personaCoachDesc,
       icon: BadgeCheck,
       accentColor: "emerald",
-      badge: "PRO",
+      badge: "Coming soon",
+      disabled: true,
     },
   ];
 
@@ -122,6 +126,7 @@ export function Step3Persona({
             isRtl={isRtl}
             accentColor={persona.accentColor}
             badge={persona.badge}
+            disabled={persona.disabled}
           />
         ))}
       </div>

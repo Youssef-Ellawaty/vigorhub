@@ -1,23 +1,23 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import DashboardHeader from '@/components/dashboard/DashboardHeader'
-import ControlBar from '@/components/dashboard/ControlBar'
-import StatsBar from '@/components/dashboard/StatsBar'
-import WorkoutCharts from '@/components/dashboard/WorkoutCharts'
-import NutritionChart from '@/components/dashboard/NutritionChart'
+import DashboardHeader from '@/progress-analytics/components/dashboard/DashboardHeader'
+import ControlBar from '@/progress-analytics/components/dashboard/ControlBar'
+import StatsBar from '@/progress-analytics/components/dashboard/StatsBar'
+import WorkoutCharts from '@/progress-analytics/components/dashboard/WorkoutCharts'
+import NutritionChart from '@/progress-analytics/components/dashboard/NutritionChart'
 import type {
   DashboardFilters,
   ExerciseProgressLog,
   DailyCalorieLog,
   Language,
   Theme,
-} from '@/lib/dashboard-types'
+} from '@/progress-analytics/lib/dashboard-types'
 import {
   MOCK_EXERCISES,
   generateMockProgressLogs,
   ALL_CALORIE_LOGS,
-} from '@/lib/dashboard-types'
+} from '@/progress-analytics/lib/dashboard-types'
 
 export default function DashboardPage() {
   const [theme, setTheme] = useState<Theme>('dark')

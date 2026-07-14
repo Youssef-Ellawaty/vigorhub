@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef } from "react";
-import { Sun, Moon, Languages, Zap } from "lucide-react";
+import { Sun, Moon, Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { t as getT } from "./translations";
 import { StepIndicator } from "./primitives/StepIndicator";
@@ -11,6 +11,7 @@ import { Step3Persona } from "./steps/Step3Persona";
 import { Step4AAthleteGoal } from "./steps/Step4AAthleteGoal";
 import { Step4BCoachInvite } from "./steps/Step4BCoachInvite";
 import { Step4CCoachVerify } from "./steps/Step4CCoachVerify";
+import { Step5Payment } from "./steps/Step5Payment";
 import { SuccessScreen } from "./steps/SuccessScreen";
 import {
   PersonaType,
@@ -55,6 +56,11 @@ function buildInitialState(): WizardState {
     step4C: {
       coachVerificationToken: "",
     },
+    step5: {
+      selectedPlan: null,
+      paymentMethod: null,
+      vodafoneNumber: "",
+    },
   };
 }
 
@@ -70,6 +76,8 @@ function getPreviousStep(current: WizardStep, personaType: PersonaType | null): 
     case "step4B":
     case "step4C":
       return "step3";
+    case "step5Payment":
+      return "step4A";
     default:
       return "step1";
   }
@@ -247,12 +255,12 @@ export function OnboardingWizard() {
           >
             <div
               className={cn(
-                "flex items-center justify-center w-9 h-9 rounded-xl",
+                "flex items-center justify-center w-9 h-9 rounded-xl overflow-hidden",
                 "bg-emerald-500 shadow-[0_0_16px_rgba(16,185,129,0.4)]"
               )}
               aria-hidden="true"
             >
-              <Zap className="w-5 h-5 text-white" strokeWidth={2.2} />
+              <img src="/logo.jpg" alt="VigorHub Logo" className="w-6 h-6 object-contain" />
             </div>
             <span
               className={cn(
@@ -391,7 +399,7 @@ export function OnboardingWizard() {
                 onChange={(data) =>
                   setState((prev) => ({ ...prev, step4A: data }))
                 }
-                onSubmit={handleFinalSubmit}
+                onSubmit={() => handleNext("step5Payment")}
                 onBack={handleBack}
                 theme={state.theme}
                 isRtl={isRtl}
@@ -420,6 +428,21 @@ export function OnboardingWizard() {
                 data={state.step4C}
                 onChange={(data) =>
                   setState((prev) => ({ ...prev, step4C: data }))
+                }
+                onSubmit={handleFinalSubmit}
+                onBack={handleBack}
+                theme={state.theme}
+                isRtl={isRtl}
+                t={translations}
+                isLoading={isSubmitting}
+              />
+            )}
+
+            {state.currentStep === "step5Payment" && (
+              <Step5Payment
+                data={state.step5}
+                onChange={(data) =>
+                  setState((prev) => ({ ...prev, step5: data }))
                 }
                 onSubmit={handleFinalSubmit}
                 onBack={handleBack}

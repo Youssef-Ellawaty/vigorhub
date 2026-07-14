@@ -101,6 +101,28 @@ export interface TranslationDict {
   coachTokenInvalidError: string;
   coachTokenRequiredError: string;
 
+  // ── Step 5 — Payment / Subscription ─────────────────────────────────────────
+  step5Title: string;
+  step5Subtitle: string;
+  planBasicTitle: string;
+  planBasicDesc: string;
+  planProTitle: string;
+  planProDesc: string;
+  planUltimateTitle: string;
+  planUltimateDesc: string;
+  perMonth: string;
+  mostPopularBadge: string;
+  paymentMethodLabel: string;
+  vodafoneCashLabel: string;
+  paypalLabel: string;
+  vodafoneNumberLabel: string;
+  vodafoneNumberPlaceholder: string;
+  vodafoneNumberError: string;
+  selectPlanError: string;
+  selectPaymentMethodError: string;
+  confirmAndPay: string;
+  payingWith: string;
+
   // ── Success Screen ────────────────────────────────────────────────────────────
   successTitle: string;
   successSubtitle: string;
@@ -199,6 +221,27 @@ const en: TranslationDict = {
   coachTokenInvalidError: "Invalid token format. Please use the exact token issued to you by VigorHub.",
   coachTokenRequiredError: "Please enter your coach verification token.",
 
+  step5Title: "Choose Your Plan",
+  step5Subtitle: "Pick a subscription that fits your goals, then confirm your payment.",
+  planBasicTitle: "Basic",
+  planBasicDesc: "Workout tracking and meal logging.",
+  planProTitle: "Pro",
+  planProDesc: "Everything in Basic, plus AI coach (limited questions), progress analytics, and community access.",
+  planUltimateTitle: "Ultimate",
+  planUltimateDesc: "Everything in Pro, plus unlimited AI coach, full community access, and more workout splits.",
+  perMonth: "/ month",
+  mostPopularBadge: "Most Popular",
+  paymentMethodLabel: "Payment Method",
+  vodafoneCashLabel: "Vodafone Cash",
+  paypalLabel: "PayPal",
+  vodafoneNumberLabel: "Vodafone Cash Number",
+  vodafoneNumberPlaceholder: "01XXXXXXXXX",
+  vodafoneNumberError: "Enter a valid Egyptian mobile number.",
+  selectPlanError: "Please select a subscription plan.",
+  selectPaymentMethodError: "Please select a payment method.",
+  confirmAndPay: "Confirm & Pay",
+  payingWith: "Paying with",
+
   successTitle: "Welcome to VigorHub!",
   successSubtitle: "Your account has been created successfully. You are now part of the VigorHub community.",
   successCta: "Enter the Platform",
@@ -295,6 +338,27 @@ const ar: TranslationDict = {
   coachTokenHint: "تُصدر الرموز من إدارة فيغورهاب وهي فريدة لكل مدرب معتمد.",
   coachTokenInvalidError: "صيغة الرمز غير صحيحة. يرجى استخدام الرمز الذي أصدرته لك فيغورهاب.",
   coachTokenRequiredError: "يرجى إدخال رمز تحقق المدرب الخاص بك.",
+
+  step5Title: "اختر باقتك",
+  step5Subtitle: "اختار الباقة المناسبة لهدفك، وبعدين أكّد طريقة الدفع.",
+  planBasicTitle: "الأساسية",
+  planBasicDesc: "متابعة التمارين وتسجيل الوجبات فقط.",
+  planProTitle: "برو",
+  planProDesc: "كل مميزات الأساسية، بالإضافة إلى مساعد الذكاء الاصطناعي (عدد أسئلة محدود)، تحليل الإحصائيات، والدخول إلى المجتمع.",
+  planUltimateTitle: "الألتيميت",
+  planUltimateDesc: "كل مميزات برو، بالإضافة إلى ذكاء اصطناعي غير محدود، دخول كامل للمجتمع، وعدد أكبر من أنظمة التمارين.",
+  perMonth: "/ شهريًا",
+  mostPopularBadge: "الأكثر طلبًا",
+  paymentMethodLabel: "طريقة الدفع",
+  vodafoneCashLabel: "فودافون كاش",
+  paypalLabel: "باي بال",
+  vodafoneNumberLabel: "رقم فودافون كاش",
+  vodafoneNumberPlaceholder: "01XXXXXXXXX",
+  vodafoneNumberError: "أدخل رقم موبايل مصري صحيح.",
+  selectPlanError: "يرجى اختيار باقة الاشتراك.",
+  selectPaymentMethodError: "يرجى اختيار طريقة الدفع.",
+  confirmAndPay: "تأكيد الدفع",
+  payingWith: "الدفع عن طريق",
 
   successTitle: "أهلاً بك في فيغورهاب!",
   successSubtitle: "تم إنشاء حسابك بنجاح. أنت الآن جزء من مجتمع فيغورهاب.",

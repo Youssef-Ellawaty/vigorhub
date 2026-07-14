@@ -1,0 +1,127 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db" // حطينا المسار هنا دايركت عشان نلغي اللفة دي تماماً
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1️⃣ جدول المستخدمين (تأمين الحساب، البيانات الحيوية، والهدف الأساسي)
+model User {
+  id             String        @id @default(uuid())
+  name           String
+  username       String        @unique
+  email          String?       @unique
+  phone          String?       @unique
+  passwordHash   String        // كلمة المرور مشفرة حتماً لضمان الأمان
+  gender         String        // النوع (Male / Female)
+  height         Float         // الطول بالـ سم
+  weight         Float         // الوزن بالـ كيلو
+  age            Int           // السن
+  accountType    String        @default("free_athlete") // نوع الحساب (الدور الافتراضي)
+  primaryGoal    String        // الهدف الأساسي (تضخيم، تخسيس، لياقة...)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // العلاقات (Relations)
+  customSplits   CustomSplit[] // السبليتس المخصصة اللي الكابتن هيعملها لنفسه
+  workoutLogs    WorkoutLog[]  // سجل التمارين والأوزان اليومية
+  dailyIntakes   DailyIntake[] // سجل التغذية والمياه اليومي
+}
+
+// 2️⃣ جدول السبليتس والتمارين الأساسية (العامة اللي بتظهر لكل الناس أول ما يفتحوا)
+model GlobalSplit {
+  id          String           @id @default(uuid())
+  name        String           // اسم السبليت (مثلاً: Push Pull Legs)
+  description String           // وصفها
+  days        String           // الأيام مجمعة بنص (مثلاً: "Saturday, Monday, Wednesday")
+  exercises   GlobalExercise[]
+}
+
+model GlobalExercise {
+  id            String      @id @default(uuid())
+  splitId       String
+  split         GlobalSplit @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  name          String      // اسم التمرين الأساسي
+  description   String?     // وصف الحركة أو التكنيك
+  targetMuscle  String      // العضلة المستهدفة (بايركس، صدر، ضهر)
+}
+
+// 3️⃣ جدول الـ Splits والتمارين المخصصة (لو اللاعب حب يعدل أو يبتكر سبليت لنفسه)
+model CustomSplit {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String           // اسم السبليت المخصصة
+  description String?          // وصفها
+  days        String           // الأيام المخصصة (مثلاً: "Sunday, Tuesday, Thursday")
+  exercises   CustomExercise[]
+}
+
+model CustomExercise {
+  id            String      @id @default(uuid())
+  customSplitId String
+  customSplit   CustomSplit @relation(fields: [customSplitId], references: [id], onDelete: Cascade)
+  name          String      // اسم التمرين المخصص
+  description   String?     // وصف التمرين أو وقت الراحة
+}
+
+// 4️⃣ جدول سجل التمرين اليومي (حفظ الأيام، التمارين، والمجاميع الفعليه)
+model WorkoutLog {
+  id           String       @id @default(uuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date         DateTime     @default(now()) // اليوم اللي اتلعب فيه التمرين
+  exerciseName String       // اسم التمرين الملعوب
+  sets         WorkoutSet[] // المجاميع والتكرارات والأوزان المربوطة بالتمرين ده
+}
+
+model WorkoutSet {
+  id           String     @id @default(uuid())
+  workoutLogId String
+  workoutLog   WorkoutLog @relation(fields: [workoutLogId], references: [id], onDelete: Cascade)
+  setNumber    Int        // رقم المجموعة (1، 2، 3...)
+  reps         Int        // عدد التكرارات في المجموعة دي
+  weight       Float      // الوزن المستخدَم (بالكيلو)
+}
+
+// 5️⃣ جدول الأكلات والوجبات العامة (القاموس الثابت اللي السيستم بيقترح منه)
+model GlobalFood {
+  id          String   @id @default(uuid())
+  name        String   @unique // اسم الأكلة (مثلاً: صدور دجاج، شوفان)
+  calories    Float    // السعرات لكل حصة
+  protein     Float    // البروتين
+  carbs       Float    // الكارب
+  fats        Float    // الدهون
+  servingSize Float    // حجم الحصة (مثلاً: 100)
+  servingUnit String   // الوحدة (grams / piece / scoop)
+}
+
+// 6️⃣ جدول التغذية والمياه اليومي المربوط بكل مستخدم
+model DailyIntake {
+  id            String       @id @default(uuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date          DateTime     @default(now()) // تاريخ اليوم
+  totalCalories Float        @default(0)     // مجموع السعرات اللي دخلت جسمه النهاردة
+  totalProtein  Float        @default(0)
+  totalCarbs    Float        @default(0)
+  totalFats     Float        @default(0)
+  waterIntake   Float        @default(0)     // كمية المياه المستهلكة (بالـ ملّي أو اللتر)
+  meals         LoggedMeal[] // الوجبات الفردية اللي أكلها في اليوم ده
+}
+
+model LoggedMeal {
+  id            String      @id @default(uuid())
+  dailyIntakeId String
+  dailyIntake   DailyIntake @relation(fields: [dailyIntakeId], references: [id], onDelete: Cascade)
+  foodName      String      // اسم الأكلة المأكولة
+  amountEaten   Float       // الكمية اللي أكلها فعلياً
+  calories      Float       // السعرات المحسوبة للكمية دي بالذات
+  protein       Float
+  carbs         Float
+  fats          Float
+}
