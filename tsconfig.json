@@ -19,6 +19,10 @@
       }
     ],
     "paths": {
+      "@/lib/athlete-dashboard/*": ["./athlete-dashboard/lib/*"],
+      "@/lib/calorie-tracker/*": ["./calorie-tracker/lib/*"],
+      "@/lib/community/*": ["./community/lib/*"],
+      "@/lib/utils": ["./lib/utils"],
       "@/*": ["./*"]
     }
   },
