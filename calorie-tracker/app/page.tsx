@@ -11,7 +11,6 @@ import {
   Sun,
   Moon,
   Globe,
-  Zap,
 } from "lucide-react";
 import { TDEECalculator } from "@/calorie-tracker/components/tdee-calculator";
 import { MacroDashboard } from "@/calorie-tracker/components/macro-dashboard";
@@ -116,8 +115,8 @@ export default function VigorHub() {
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/25">
-              <Zap className="h-4 w-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/25 overflow-hidden">
+              <img src="/logo.jpg" alt="VigorHub Logo" className="w-5 h-5 object-contain" />
             </div>
             <div>
               <span className={cn("text-base font-black tracking-tight", textPrimary)}>
